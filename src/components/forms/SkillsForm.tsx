@@ -35,7 +35,7 @@ const SkillsForm = () => {
           onKeyDown={handleKeyDown}
           placeholder="Add a skill"
           className="flex-1 rounded-lg border border-primary bg-background text-text shadow-sm focus:border-emerald focus:ring-2 focus:ring-emerald/50 transition-all duration-150 px-3 py-2 outline-none"
-          required
+          // required
         />
         <button
           type="button"

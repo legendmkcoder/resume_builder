@@ -110,7 +110,8 @@ const ProjectsForm = () => {
                 htmlFor={`description-${proj.id}`}
                 className="block text-sm font-medium text-text mb-1"
               >
-                Description <span className="text-coral">*</span>
+                Description
+                {/* <span className="text-coral">*</span> */}
               </label>
               <textarea
                 name="description"
@@ -119,10 +120,10 @@ const ProjectsForm = () => {
                 value={proj.description}
                 onChange={(e) => handleChange(index, e)}
                 className="mt-1 block w-full rounded-lg border border-primary bg-background text-text shadow-sm focus:border-emerald focus:ring-2 focus:ring-emerald/50 transition-all duration-150 px-3 py-2 outline-none resize-none"
-                required
+                // required
               />
             </div>
-            <div className="md:col-span-2">
+            {/* <div className="md:col-span-2">
               <label
                 htmlFor={`technologies-${proj.id}`}
                 className="block text-sm font-medium text-text mb-1"
@@ -139,7 +140,7 @@ const ProjectsForm = () => {
                 className="mt-1 block w-full rounded-lg border border-primary bg-background text-text shadow-sm focus:border-emerald focus:ring-2 focus:ring-emerald/50 transition-all duration-150 px-3 py-2 outline-none"
                 required
               />
-            </div>
+            </div> */}
           </div>
           <button
             type="button"
