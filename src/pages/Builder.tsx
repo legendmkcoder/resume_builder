@@ -48,27 +48,25 @@ const Builder = () => {
     if (!resumeData.personalInfo.phone.trim()) return 'Phone is required.';
     if (!resumeData.personalInfo.location.trim())
       return 'Location is required.';
-    if (!resumeData.personalInfo.summary.trim())
-      return 'Professional Summary is required.';
+    // summary is NOT required
     if (
       (!resumeData.workExperience || resumeData.workExperience.length === 0) &&
       (!resumeData.education || resumeData.education.length === 0)
     ) {
       return 'At least one Work Experience or Education entry is required.';
     }
-    if (resumeData.skills.length === 0) {
-      return 'At least one skill is required.';
-    }
-    // Check for incomplete work experience
+    // if (resumeData.skills.length === 0) {
+    //   return 'At least one skill is required.';
+    // }
+    // Check for incomplete work experience (description is NOT required)
     for (const exp of resumeData.workExperience) {
       if (
         !exp.company.trim() ||
         !exp.position.trim() ||
         !exp.startDate.trim() ||
-        (!exp.current && !exp.endDate.trim()) ||
-        !exp.description.trim()
+        (!exp.current && !exp.endDate.trim())
       ) {
-        return 'All Work Experience fields are required.';
+        return 'All Work Experience fields (except Description) are required.';
       }
     }
     // Check for incomplete education
@@ -81,6 +79,12 @@ const Builder = () => {
         !edu.endDate.trim()
       ) {
         return 'All Education fields are required.';
+      }
+    }
+    // Check for incomplete projects (name is required, description/technologies are NOT)
+    for (const proj of resumeData.projects) {
+      if (!proj.name.trim()) {
+        return 'Project Name is required.';
       }
     }
     return null;
