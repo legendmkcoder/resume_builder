@@ -4,13 +4,34 @@ import { useResumeContext } from '../../contexts/ResumeContext';
 const CreativeTemplate = () => {
   const { resumeData } = useResumeContext();
   const {
-    personalInfo = {},
+    personalInfo = {
+      fullName: '',
+      email: '',
+      phone: '',
+      location: '',
+      summary: '',
+    },
     workExperience = [],
     education = [],
     skills = [],
     projects = [],
-    certifications = []
+    certifications = [],
   } = resumeData || {};
+
+  // Check if any data has been entered
+  const hasPersonalInfo =
+    personalInfo.fullName ||
+    personalInfo.email ||
+    personalInfo.phone ||
+    personalInfo.location ||
+    personalInfo.summary;
+  const hasAnyData =
+    hasPersonalInfo ||
+    workExperience.length > 0 ||
+    education.length > 0 ||
+    skills.length > 0 ||
+    projects.length > 0 ||
+    certifications.length > 0;
 
   return (
     <div className="max-w-[21cm] mx-auto bg-white">
@@ -20,7 +41,9 @@ const CreativeTemplate = () => {
           <div className="sticky top-8">
             {/* Profile */}
             <div className="mb-8 text-center">
-              <h1 className="text-2xl font-bold mb-2">{personalInfo.fullName || 'Your Name'}</h1>
+              <h1 className="text-2xl font-bold mb-2">
+                {personalInfo.fullName || 'Your Name'}
+              </h1>
               <div className="text-indigo-200 space-y-1 text-sm">
                 {personalInfo.email && <div>{personalInfo.email}</div>}
                 {personalInfo.phone && <div>{personalInfo.phone}</div>}
@@ -31,7 +54,9 @@ const CreativeTemplate = () => {
             {/* Skills */}
             {skills.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-4 text-indigo-200">Skills</h2>
+                <h2 className="text-xl font-semibold mb-4 text-indigo-200">
+                  Skills
+                </h2>
                 <div className="flex flex-wrap gap-2">
                   {skills.map((skill) => (
                     <span
@@ -48,7 +73,9 @@ const CreativeTemplate = () => {
             {/* Education */}
             {education.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-4 text-indigo-200">Education</h2>
+                <h2 className="text-xl font-semibold mb-4 text-indigo-200">
+                  Education
+                </h2>
                 <div className="space-y-4">
                   {education.map((edu) => (
                     <div key={edu.id}>
@@ -60,7 +87,9 @@ const CreativeTemplate = () => {
                         {edu.startDate} - {edu.endDate}
                       </p>
                       {edu.gpa && (
-                        <p className="text-indigo-200 text-xs mt-1">GPA: {edu.gpa}</p>
+                        <p className="text-indigo-200 text-xs mt-1">
+                          GPA: {edu.gpa}
+                        </p>
                       )}
                     </div>
                   ))}
@@ -71,7 +100,9 @@ const CreativeTemplate = () => {
             {/* Certifications */}
             {certifications.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold mb-4 text-indigo-200">Certifications</h2>
+                <h2 className="text-xl font-semibold mb-4 text-indigo-200">
+                  Certifications
+                </h2>
                 <div className="space-y-4">
                   {certifications.map((cert) => (
                     <div key={cert.id}>
@@ -101,26 +132,42 @@ const CreativeTemplate = () => {
           {/* Summary */}
           {personalInfo.summary && (
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-indigo-900 mb-4">About Me</h2>
-              <p className="text-gray-700 leading-relaxed">{personalInfo.summary}</p>
+              <h2 className="text-2xl font-bold text-indigo-900 mb-4">
+                About Me
+              </h2>
+              <p className="text-gray-700 leading-relaxed">
+                {personalInfo.summary}
+              </p>
             </div>
           )}
 
           {/* Experience */}
           {workExperience.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-indigo-900 mb-6">Experience</h2>
+              <h2 className="text-2xl font-bold text-indigo-900 mb-6">
+                Experience
+              </h2>
               <div className="space-y-6">
                 {workExperience.map((experience) => (
-                  <div key={experience.id} className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-indigo-900 before:rounded-full">
+                  <div
+                    key={experience.id}
+                    className="relative pl-8 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:bg-indigo-900 before:rounded-full"
+                  >
                     <div className="flex justify-between items-baseline">
-                      <h3 className="text-xl font-semibold text-gray-800">{experience.position}</h3>
+                      <h3 className="text-xl font-semibold text-gray-800">
+                        {experience.position}
+                      </h3>
                       <span className="text-gray-600 text-sm">
-                        {experience.startDate} - {experience.current ? 'Present' : experience.endDate}
+                        {experience.startDate} -{' '}
+                        {experience.current ? 'Present' : experience.endDate}
                       </span>
                     </div>
-                    <p className="text-indigo-900 font-medium">{experience.company}</p>
-                    <p className="mt-2 text-gray-600">{experience.description}</p>
+                    <p className="text-indigo-900 font-medium">
+                      {experience.company}
+                    </p>
+                    <p className="mt-2 text-gray-600">
+                      {experience.description}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -130,12 +177,19 @@ const CreativeTemplate = () => {
           {/* Projects */}
           {projects.length > 0 && (
             <div>
-              <h2 className="text-2xl font-bold text-indigo-900 mb-6">Projects</h2>
+              <h2 className="text-2xl font-bold text-indigo-900 mb-6">
+                Projects
+              </h2>
               <div className="grid gap-6">
                 {projects.map((project) => (
-                  <div key={project.id} className="border border-indigo-100 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div
+                    key={project.id}
+                    className="border border-indigo-100 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
                     <div className="flex justify-between items-start">
-                      <h3 className="text-xl font-semibold text-gray-800">{project.name}</h3>
+                      <h3 className="text-xl font-semibold text-gray-800">
+                        {project.name}
+                      </h3>
                       {project.url && (
                         <a
                           href={project.url}
@@ -161,6 +215,15 @@ const CreativeTemplate = () => {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!hasAnyData && (
+            <div className="text-center py-8">
+              <p className="text-gray-400 italic">
+                Start filling in your information to see your resume here
+              </p>
             </div>
           )}
         </div>

@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useResumeContext } from '../contexts/ResumeContext';
 import PersonalInfoForm from '../components/forms/PersonalInfoForm';
 import WorkExperienceForm from '../components/forms/WorkExperienceForm';
@@ -9,6 +10,7 @@ import CertificationsForm from '../components/forms/CertificationsForm';
 import ModernTemplate from '../components/templates/ModernTemplate';
 import MinimalTemplate from '../components/templates/MinimalTemplate';
 import CreativeTemplate from '../components/templates/CreativeTemplate';
+import SampleContent from '../components/SampleContent';
 import { Download } from 'lucide-react';
 import { generatePDF } from '../utils/pdfGenerator';
 
@@ -20,23 +22,95 @@ const templates: { [key: string]: React.ComponentType } = {
 
 const Builder = () => {
   const resumeRef = useRef<HTMLDivElement>(null);
-  const { selectedTemplate, resumeData } = useResumeContext();
+  const navigate = useNavigate();
+  const { selectedTemplate, resumeData, resetResumeData, templateSelected } =
+    useResumeContext();
+
+  // Error state for validation
+  const [error, setError] = React.useState<string | null>(null);
+  // Loading state for export
+  const [isExporting, setIsExporting] = React.useState(false);
 
   // Force re-render when template changes
   const [key, setKey] = React.useState(0);
   useEffect(() => {
-    setKey(prev => prev + 1);
+    setKey((prev) => prev + 1);
   }, [selectedTemplate]);
 
   // Get the selected template component or fallback to ModernTemplate
   const SelectedTemplate = templates[selectedTemplate] || ModernTemplate;
 
+  // Validation function
+  const validateResume = () => {
+    if (!resumeData.personalInfo.fullName.trim())
+      return 'Full Name is required.';
+    if (!resumeData.personalInfo.email.trim()) return 'Email is required.';
+    if (!resumeData.personalInfo.phone.trim()) return 'Phone is required.';
+    if (!resumeData.personalInfo.location.trim())
+      return 'Location is required.';
+    if (!resumeData.personalInfo.summary.trim())
+      return 'Professional Summary is required.';
+    if (
+      (!resumeData.workExperience || resumeData.workExperience.length === 0) &&
+      (!resumeData.education || resumeData.education.length === 0)
+    ) {
+      return 'At least one Work Experience or Education entry is required.';
+    }
+    if (resumeData.skills.length === 0) {
+      return 'At least one skill is required.';
+    }
+    // Check for incomplete work experience
+    for (const exp of resumeData.workExperience) {
+      if (
+        !exp.company.trim() ||
+        !exp.position.trim() ||
+        !exp.startDate.trim() ||
+        (!exp.current && !exp.endDate.trim()) ||
+        !exp.description.trim()
+      ) {
+        return 'All Work Experience fields are required.';
+      }
+    }
+    // Check for incomplete education
+    for (const edu of resumeData.education) {
+      if (
+        !edu.institution.trim() ||
+        !edu.degree.trim() ||
+        !edu.field.trim() ||
+        !edu.startDate.trim() ||
+        !edu.endDate.trim()
+      ) {
+        return 'All Education fields are required.';
+      }
+    }
+    return null;
+  };
+
   const handleDownload = async () => {
+    const validationError = validateResume();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setError(null);
+    setIsExporting(true);
     if (resumeRef.current) {
       const filename = resumeData.personalInfo?.fullName
         ? `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_resume.pdf`
         : 'resume.pdf';
-      await generatePDF(resumeRef.current, filename);
+      try {
+        await generatePDF(resumeRef.current, filename);
+        // Reset all data after successful export
+        resetResumeData();
+        // Navigate back to home page
+        navigate('/');
+      } catch (error) {
+        console.error('Error during PDF generation:', error);
+      } finally {
+        setIsExporting(false);
+      }
+    } else {
+      setIsExporting(false);
     }
   };
 
@@ -62,18 +136,57 @@ const Builder = () => {
           <div className="sticky top-0 z-10 bg-gray-50 border-b border-gray-200 px-4 py-2">
             <div className="max-w-2xl mx-auto flex justify-between items-center">
               <h2 className="text-lg font-medium text-gray-900">Preview</h2>
-              <button
-                onClick={handleDownload}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download PDF
-              </button>
+              {templateSelected ? (
+                <button
+                  onClick={handleDownload}
+                  className={`inline-flex items-center px-6 py-2 border border-transparent text-base font-semibold rounded-lg shadow-sm text-white bg-emerald hover:bg-emerald/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald/50 transition-all ${
+                    isExporting ? 'opacity-60 cursor-not-allowed' : ''
+                  }`}
+                  disabled={isExporting}
+                  aria-busy={isExporting}
+                >
+                  {isExporting ? (
+                    <svg
+                      className="animate-spin h-5 w-5 mr-2 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
+                    </svg>
+                  ) : (
+                    <Download className="h-5 w-5 mr-2" />
+                  )}
+                  {isExporting ? 'Exporting...' : 'Download PDF'}
+                </button>
+              ) : (
+                <div className="text-sm text-gray-500">
+                  Select a template to start building
+                </div>
+              )}
             </div>
+            {/* Error message */}
+            {error && (
+              <div className="text-red-600 text-sm mt-2 text-center">
+                {error}
+              </div>
+            )}
           </div>
           <div className="max-w-2xl mx-auto py-8 px-4" ref={resumeRef}>
             <div className="bg-white shadow-lg" key={key}>
-              <SelectedTemplate />
+              {templateSelected ? <SelectedTemplate /> : <SampleContent />}
             </div>
           </div>
         </div>

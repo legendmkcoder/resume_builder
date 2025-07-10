@@ -42,7 +42,9 @@ const Templates = () => {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900">Choose Your Template</h1>
+          <h1 className="text-4xl font-bold text-gray-900">
+            Choose Your Template
+          </h1>
           <p className="mt-4 text-xl text-gray-600">
             Select a template that best represents your professional style
           </p>
@@ -71,11 +73,15 @@ const Templates = () => {
                   </div>
                 )}
               </div>
-              
+
               {/* Template Info */}
               <div className="p-4 border-t border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900">{template.name}</h3>
-                <p className="mt-1 text-sm text-gray-600 mb-3">{template.description}</p>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {template.name}
+                </h3>
+                <p className="mt-1 text-sm text-gray-600 mb-3">
+                  {template.description}
+                </p>
                 <div
                   className={`inline-flex justify-center items-center px-3 py-2 w-full border rounded-md text-sm font-medium transition-colors
                     ${
@@ -85,7 +91,9 @@ const Templates = () => {
                     }
                   `}
                 >
-                  {selectedTemplate === template.id ? 'Current Template' : 'Use this template'}
+                  {selectedTemplate === template.id
+                    ? 'Current Template'
+                    : 'Use this template'}
                 </div>
               </div>
             </div>
