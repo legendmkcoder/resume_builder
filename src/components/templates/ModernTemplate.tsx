@@ -4,19 +4,42 @@ import { useResumeContext } from '../../contexts/ResumeContext';
 const ModernTemplate = () => {
   const { resumeData } = useResumeContext();
   const {
-    personalInfo = {},
+    personalInfo = {
+      fullName: '',
+      email: '',
+      phone: '',
+      location: '',
+      summary: '',
+    },
     workExperience = [],
     education = [],
     skills = [],
     projects = [],
-    certifications = []
+    certifications = [],
   } = resumeData || {};
+
+  // Check if any data has been entered
+  const hasPersonalInfo =
+    personalInfo.fullName ||
+    personalInfo.email ||
+    personalInfo.phone ||
+    personalInfo.location ||
+    personalInfo.summary;
+  const hasAnyData =
+    hasPersonalInfo ||
+    workExperience.length > 0 ||
+    education.length > 0 ||
+    skills.length > 0 ||
+    projects.length > 0 ||
+    certifications.length > 0;
 
   return (
     <div className="p-8 max-w-[21cm] mx-auto bg-white shadow-lg">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">{personalInfo.fullName || 'Your Name'}</h1>
+        <h1 className="text-3xl font-bold text-gray-900">
+          {personalInfo.fullName || 'Your Name'}
+        </h1>
         <div className="text-gray-600 mt-2 space-x-4">
           {personalInfo.email && <span>{personalInfo.email}</span>}
           {personalInfo.phone && (
@@ -31,21 +54,37 @@ const ModernTemplate = () => {
               <span>{personalInfo.location}</span>
             </>
           )}
+          {!hasPersonalInfo && (
+            <span className="text-gray-400">
+              Enter your contact information
+            </span>
+          )}
         </div>
       </div>
 
       {/* Summary */}
-      {personalInfo.summary && (
+      {personalInfo.summary ? (
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-900 border-b-2 border-blue-600 pb-2 mb-3">
             Professional Summary
           </h2>
           <p className="text-gray-700">{personalInfo.summary}</p>
         </div>
+      ) : (
+        hasAnyData && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 border-b-2 border-blue-600 pb-2 mb-3">
+              Professional Summary
+            </h2>
+            <p className="text-gray-400 italic">
+              Add your professional summary here
+            </p>
+          </div>
+        )
       )}
 
       {/* Work Experience */}
-      {workExperience.length > 0 && (
+      {workExperience.length > 0 ? (
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-900 border-b-2 border-blue-600 pb-2 mb-3">
             Work Experience
@@ -53,9 +92,12 @@ const ModernTemplate = () => {
           {workExperience.map((experience) => (
             <div key={experience.id} className="mb-4">
               <div className="flex justify-between items-baseline">
-                <h3 className="text-lg font-medium text-gray-900">{experience.position}</h3>
+                <h3 className="text-lg font-medium text-gray-900">
+                  {experience.position}
+                </h3>
                 <span className="text-gray-600 text-sm">
-                  {experience.startDate} - {experience.current ? 'Present' : experience.endDate}
+                  {experience.startDate} -{' '}
+                  {experience.current ? 'Present' : experience.endDate}
                 </span>
               </div>
               <div className="text-gray-700">{experience.company}</div>
@@ -63,10 +105,21 @@ const ModernTemplate = () => {
             </div>
           ))}
         </div>
+      ) : (
+        hasAnyData && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 border-b-2 border-blue-600 pb-2 mb-3">
+              Work Experience
+            </h2>
+            <p className="text-gray-400 italic">
+              Add your work experience here
+            </p>
+          </div>
+        )
       )}
 
       {/* Education */}
-      {education.length > 0 && (
+      {education.length > 0 ? (
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-900 border-b-2 border-blue-600 pb-2 mb-3">
             Education
@@ -74,7 +127,9 @@ const ModernTemplate = () => {
           {education.map((education) => (
             <div key={education.id} className="mb-4">
               <div className="flex justify-between items-baseline">
-                <h3 className="text-lg font-medium text-gray-900">{education.institution}</h3>
+                <h3 className="text-lg font-medium text-gray-900">
+                  {education.institution}
+                </h3>
                 <span className="text-gray-600 text-sm">
                   {education.startDate} - {education.endDate}
                 </span>
@@ -86,10 +141,19 @@ const ModernTemplate = () => {
             </div>
           ))}
         </div>
+      ) : (
+        hasAnyData && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 border-b-2 border-blue-600 pb-2 mb-3">
+              Education
+            </h2>
+            <p className="text-gray-400 italic">Add your education here</p>
+          </div>
+        )
       )}
 
       {/* Skills */}
-      {skills.length > 0 && (
+      {skills.length > 0 ? (
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-900 border-b-2 border-blue-600 pb-2 mb-3">
             Skills
@@ -105,10 +169,19 @@ const ModernTemplate = () => {
             ))}
           </div>
         </div>
+      ) : (
+        hasAnyData && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 border-b-2 border-blue-600 pb-2 mb-3">
+              Skills
+            </h2>
+            <p className="text-gray-400 italic">Add your skills here</p>
+          </div>
+        )
       )}
 
       {/* Projects */}
-      {projects.length > 0 && (
+      {projects.length > 0 ? (
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-900 border-b-2 border-blue-600 pb-2 mb-3">
             Projects
@@ -142,10 +215,19 @@ const ModernTemplate = () => {
             </div>
           ))}
         </div>
+      ) : (
+        hasAnyData && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 border-b-2 border-blue-600 pb-2 mb-3">
+              Projects
+            </h2>
+            <p className="text-gray-400 italic">Add your projects here</p>
+          </div>
+        )
       )}
 
       {/* Certifications */}
-      {certifications.length > 0 && (
+      {certifications.length > 0 ? (
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-900 border-b-2 border-blue-600 pb-2 mb-3">
             Certifications
@@ -153,8 +235,12 @@ const ModernTemplate = () => {
           {certifications.map((certification) => (
             <div key={certification.id} className="mb-4">
               <div className="flex justify-between items-baseline">
-                <h3 className="text-lg font-medium text-gray-900">{certification.name}</h3>
-                <span className="text-gray-600 text-sm">{certification.date}</span>
+                <h3 className="text-lg font-medium text-gray-900">
+                  {certification.name}
+                </h3>
+                <span className="text-gray-600 text-sm">
+                  {certification.date}
+                </span>
               </div>
               <div className="text-gray-700">
                 {certification.issuer}
@@ -171,6 +257,24 @@ const ModernTemplate = () => {
               </div>
             </div>
           ))}
+        </div>
+      ) : (
+        hasAnyData && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 border-b-2 border-blue-600 pb-2 mb-3">
+              Certifications
+            </h2>
+            <p className="text-gray-400 italic">Add your certifications here</p>
+          </div>
+        )
+      )}
+
+      {/* Empty State */}
+      {!hasAnyData && (
+        <div className="text-center py-8">
+          <p className="text-gray-400 italic">
+            Start filling in your information to see your resume here
+          </p>
         </div>
       )}
     </div>

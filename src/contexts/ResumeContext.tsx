@@ -56,8 +56,10 @@ interface ResumeData {
 interface ResumeContextType {
   resumeData: ResumeData;
   selectedTemplate: string;
+  templateSelected: boolean;
   updateResumeData: (field: keyof ResumeData, value: any) => void;
   setSelectedTemplate: (template: string) => void;
+  resetResumeData: () => void;
 }
 
 const defaultResumeData: ResumeData = {
@@ -77,7 +79,9 @@ const defaultResumeData: ResumeData = {
 
 const ResumeContext = createContext<ResumeContextType | undefined>(undefined);
 
-export const ResumeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ResumeProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [resumeData, setResumeData] = useState<ResumeData>(() => {
     const savedData = localStorage.getItem('resumeData');
     return savedData ? JSON.parse(savedData) : defaultResumeData;
@@ -86,6 +90,11 @@ export const ResumeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [selectedTemplate, setSelectedTemplate] = useState<string>(() => {
     const savedTemplate = localStorage.getItem('selectedTemplate');
     return savedTemplate || 'modern';
+  });
+
+  const [templateSelected, setTemplateSelected] = useState<boolean>(() => {
+    const savedTemplateSelected = localStorage.getItem('templateSelected');
+    return savedTemplateSelected ? JSON.parse(savedTemplateSelected) : false;
   });
 
   useEffect(() => {
@@ -104,6 +113,17 @@ export const ResumeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [selectedTemplate]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        'templateSelected',
+        JSON.stringify(templateSelected)
+      );
+    } catch (error) {
+      console.error('Error saving template selected state:', error);
+    }
+  }, [templateSelected]);
+
   const updateResumeData = (field: keyof ResumeData, value: any) => {
     setResumeData((prev) => ({
       ...prev,
@@ -113,6 +133,15 @@ export const ResumeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const handleTemplateChange = (template: string) => {
     setSelectedTemplate(template);
+    setTemplateSelected(true);
+  };
+
+  const resetResumeData = () => {
+    setResumeData(defaultResumeData);
+    // Keep templateSelected as true so users don't see sample content again
+    // Only clear localStorage for resume data, not template selection
+    localStorage.removeItem('resumeData');
+    // Don't remove templateSelected from localStorage
   };
 
   return (
@@ -120,8 +149,10 @@ export const ResumeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       value={{
         resumeData,
         selectedTemplate,
+        templateSelected,
         updateResumeData,
         setSelectedTemplate: handleTemplateChange,
+        resetResumeData,
       }}
     >
       {children}

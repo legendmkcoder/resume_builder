@@ -1,109 +1,153 @@
 import React from 'react';
 import { useResumeContext } from '../../contexts/ResumeContext';
-import { PlusCircle, Trash2 } from 'lucide-react';
 
 const ProjectsForm = () => {
   const { resumeData, updateResumeData } = useResumeContext();
-  const projects = resumeData?.projects || [];
+
+  const handleChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    const updated = resumeData.projects.map((proj, i) =>
+      i === index ? { ...proj, [name]: value } : proj
+    );
+    updateResumeData('projects', updated);
+  };
 
   const addProject = () => {
-    const newProject = {
-      id: Date.now().toString(),
-      name: '',
-      description: '',
-      technologies: [],
-      url: '',
-    };
-    updateResumeData('projects', [...projects, newProject]);
+    updateResumeData('projects', [
+      ...resumeData.projects,
+      {
+        id: Date.now().toString(),
+        name: '',
+        description: '',
+        technologies: [],
+        url: '',
+      },
+    ]);
   };
 
-  const removeProject = (id: string) => {
-    updateResumeData(
-      'projects',
-      projects.filter((project) => project.id !== id)
+  const removeProject = (index: number) => {
+    const updated = resumeData.projects.filter((_, i) => i !== index);
+    updateResumeData('projects', updated);
+  };
+
+  const handleTechChange = (index: number, tech: string) => {
+    const updated = resumeData.projects.map((proj, i) =>
+      i === index
+        ? {
+            ...proj,
+            technologies: tech
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean),
+          }
+        : proj
     );
-  };
-
-  const handleChange = (id: string, field: string, value: string | string[]) => {
-    updateResumeData(
-      'projects',
-      projects.map((project) =>
-        project.id === id ? { ...project, [field]: value } : project
-      )
-    );
-  };
-
-  const handleTechnologies = (id: string, value: string) => {
-    const technologies = value.split(',').map((tech) => tech.trim());
-    handleChange(id, 'technologies', technologies);
+    updateResumeData('projects', updated);
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium text-gray-900">Projects</h3>
+    <div className="bg-white rounded-xl shadow-md p-6 mb-6 font-sans">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-xl font-semibold text-primary">Projects</h3>
         <button
           type="button"
           onClick={addProject}
-          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+          className="px-4 py-2 rounded-lg bg-emerald text-white font-medium shadow hover:bg-emerald/90 focus:outline-none focus:ring-2 focus:ring-emerald/50 transition-all"
         >
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Add Project
+          + Add
         </button>
       </div>
-
-      {projects.map((project) => (
-        <div key={project.id} className="border rounded-lg p-4 space-y-4">
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={() => removeProject(project.id)}
-              className="text-red-600 hover:text-red-800"
-            >
-              <Trash2 className="h-5 w-5" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4">
+      {resumeData.projects.length === 0 && (
+        <div className="text-text-light text-sm mb-4">
+          No projects added yet.
+        </div>
+      )}
+      {resumeData.projects.map((proj, index) => (
+        <div
+          key={proj.id}
+          className="mb-8 border-b border-background pb-6 last:border-b-0 last:pb-0"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Project Name</label>
-              <input
-                type="text"
-                value={project.name}
-                onChange={(e) => handleChange(project.id, 'name', e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Description</label>
-              <textarea
-                rows={3}
-                value={project.description}
-                onChange={(e) => handleChange(project.id, 'description', e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Technologies (comma-separated)
+              <label
+                htmlFor={`name-${proj.id}`}
+                className="block text-sm font-medium text-text mb-1"
+              >
+                Project Name <span className="text-coral">*</span>
               </label>
               <input
                 type="text"
-                value={project.technologies.join(', ')}
-                onChange={(e) => handleTechnologies(project.id, e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                name="name"
+                id={`name-${proj.id}`}
+                value={proj.name}
+                onChange={(e) => handleChange(index, e)}
+                className="mt-1 block w-full rounded-lg border border-primary bg-background text-text shadow-sm focus:border-emerald focus:ring-2 focus:ring-emerald/50 transition-all duration-150 px-3 py-2 outline-none"
+                required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Project URL (optional)</label>
+              <label
+                htmlFor={`url-${proj.id}`}
+                className="block text-sm font-medium text-text mb-1"
+              >
+                Project URL
+              </label>
               <input
                 type="url"
-                value={project.url}
-                onChange={(e) => handleChange(project.id, 'url', e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                name="url"
+                id={`url-${proj.id}`}
+                value={proj.url}
+                onChange={(e) => handleChange(index, e)}
+                className="mt-1 block w-full rounded-lg border border-primary bg-background text-text shadow-sm focus:border-emerald focus:ring-2 focus:ring-emerald/50 transition-all duration-150 px-3 py-2 outline-none"
+                placeholder="https://..."
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label
+                htmlFor={`description-${proj.id}`}
+                className="block text-sm font-medium text-text mb-1"
+              >
+                Description <span className="text-coral">*</span>
+              </label>
+              <textarea
+                name="description"
+                id={`description-${proj.id}`}
+                rows={3}
+                value={proj.description}
+                onChange={(e) => handleChange(index, e)}
+                className="mt-1 block w-full rounded-lg border border-primary bg-background text-text shadow-sm focus:border-emerald focus:ring-2 focus:ring-emerald/50 transition-all duration-150 px-3 py-2 outline-none resize-none"
+                required
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label
+                htmlFor={`technologies-${proj.id}`}
+                className="block text-sm font-medium text-text mb-1"
+              >
+                Technologies (comma separated){' '}
+                <span className="text-coral">*</span>
+              </label>
+              <input
+                type="text"
+                name="technologies"
+                id={`technologies-${proj.id}`}
+                value={proj.technologies.join(', ')}
+                onChange={(e) => handleTechChange(index, e.target.value)}
+                className="mt-1 block w-full rounded-lg border border-primary bg-background text-text shadow-sm focus:border-emerald focus:ring-2 focus:ring-emerald/50 transition-all duration-150 px-3 py-2 outline-none"
+                required
               />
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => removeProject(index)}
+            className="px-3 py-1 rounded-lg bg-coral text-white font-medium shadow hover:bg-coral/90 focus:outline-none focus:ring-2 focus:ring-coral/50 transition-all text-sm"
+          >
+            Remove
+          </button>
         </div>
       ))}
     </div>

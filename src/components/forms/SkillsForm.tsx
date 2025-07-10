@@ -1,63 +1,69 @@
 import React, { useState } from 'react';
 import { useResumeContext } from '../../contexts/ResumeContext';
-import { PlusCircle, X } from 'lucide-react';
 
 const SkillsForm = () => {
   const { resumeData, updateResumeData } = useResumeContext();
-  const [newSkill, setNewSkill] = useState('');
-  const skills = resumeData?.skills || [];
+  const [skill, setSkill] = useState('');
 
-  const addSkill = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newSkill.trim() && !skills.includes(newSkill.trim())) {
-      updateResumeData('skills', [...skills, newSkill.trim()]);
-      setNewSkill('');
+  const addSkill = () => {
+    if (skill.trim()) {
+      updateResumeData('skills', [...resumeData.skills, skill.trim()]);
+      setSkill('');
     }
   };
 
-  const removeSkill = (skillToRemove: string) => {
-    updateResumeData(
-      'skills',
-      skills.filter((skill) => skill !== skillToRemove)
-    );
+  const removeSkill = (index: number) => {
+    const updated = resumeData.skills.filter((_, i) => i !== index);
+    updateResumeData('skills', updated);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addSkill();
+    }
   };
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium text-gray-900">Skills</h3>
-      
-      <form onSubmit={addSkill} className="flex gap-2">
+    <div className="bg-white rounded-xl shadow-md p-6 mb-6 font-sans">
+      <h3 className="text-xl font-semibold text-primary mb-4">Skills</h3>
+      <div className="flex gap-2 mb-4">
         <input
           type="text"
-          value={newSkill}
-          onChange={(e) => setNewSkill(e.target.value)}
+          value={skill}
+          onChange={(e) => setSkill(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Add a skill"
-          className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="flex-1 rounded-lg border border-primary bg-background text-text shadow-sm focus:border-emerald focus:ring-2 focus:ring-emerald/50 transition-all duration-150 px-3 py-2 outline-none"
+          required
         />
         <button
-          type="submit"
-          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+          type="button"
+          onClick={addSkill}
+          className="px-4 py-2 rounded-lg bg-emerald text-white font-medium shadow hover:bg-emerald/90 focus:outline-none focus:ring-2 focus:ring-emerald/50 transition-all"
         >
-          <PlusCircle className="h-4 w-4 mr-2" />
           Add
         </button>
-      </form>
-
+      </div>
+      {resumeData.skills.length === 0 && (
+        <div className="text-text-light text-sm mb-4">No skills added yet.</div>
+      )}
       <div className="flex flex-wrap gap-2">
-        {skills.map((skill) => (
-          <div
-            key={skill}
-            className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+        {resumeData.skills.map((s, i) => (
+          <span
+            key={i}
+            className="inline-flex items-center bg-background border border-primary text-text rounded-full px-3 py-1 text-sm font-medium shadow-sm"
           >
-            {skill}
+            {s}
             <button
               type="button"
-              onClick={() => removeSkill(skill)}
-              className="ml-2 text-blue-600 hover:text-blue-800"
+              onClick={() => removeSkill(i)}
+              className="ml-2 text-coral hover:text-white hover:bg-coral rounded-full p-1 transition-colors"
+              aria-label="Remove skill"
             >
-              <X className="h-4 w-4" />
+              &times;
             </button>
-          </div>
+          </span>
         ))}
       </div>
     </div>

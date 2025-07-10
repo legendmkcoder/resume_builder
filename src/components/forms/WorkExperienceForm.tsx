@@ -1,126 +1,175 @@
 import React from 'react';
 import { useResumeContext } from '../../contexts/ResumeContext';
-import { PlusCircle, Trash2 } from 'lucide-react';
 
 const WorkExperienceForm = () => {
   const { resumeData, updateResumeData } = useResumeContext();
-  const workExperience = resumeData?.workExperience || [];
+
+  const handleChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value, type, checked } = e.target;
+    const updated = resumeData.workExperience.map((exp, i) =>
+      i === index
+        ? { ...exp, [name]: type === 'checkbox' ? checked : value }
+        : exp
+    );
+    updateResumeData('workExperience', updated);
+  };
 
   const addExperience = () => {
-    const newExperience = {
-      id: Date.now().toString(),
-      company: '',
-      position: '',
-      startDate: '',
-      endDate: '',
-      current: false,
-      description: '',
-    };
-    updateResumeData('workExperience', [...workExperience, newExperience]);
+    updateResumeData('workExperience', [
+      ...resumeData.workExperience,
+      {
+        id: Date.now().toString(),
+        company: '',
+        position: '',
+        startDate: '',
+        endDate: '',
+        current: false,
+        description: '',
+      },
+    ]);
   };
 
-  const removeExperience = (id: string) => {
-    updateResumeData(
-      'workExperience',
-      workExperience.filter((exp) => exp.id !== id)
-    );
-  };
-
-  const handleChange = (id: string, field: string, value: string | boolean) => {
-    updateResumeData(
-      'workExperience',
-      workExperience.map((exp) =>
-        exp.id === id ? { ...exp, [field]: value } : exp
-      )
-    );
+  const removeExperience = (index: number) => {
+    const updated = resumeData.workExperience.filter((_, i) => i !== index);
+    updateResumeData('workExperience', updated);
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium text-gray-900">Work Experience</h3>
+    <div className="bg-white rounded-xl shadow-md p-6 mb-6 font-sans">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-xl font-semibold text-primary">Work Experience</h3>
         <button
           type="button"
           onClick={addExperience}
-          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+          className="px-4 py-2 rounded-lg bg-emerald text-white font-medium shadow hover:bg-emerald/90 focus:outline-none focus:ring-2 focus:ring-emerald/50 transition-all"
         >
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Add Experience
+          + Add
         </button>
       </div>
-
-      {workExperience.map((experience) => (
-        <div key={experience.id} className="border rounded-lg p-4 space-y-4">
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={() => removeExperience(experience.id)}
-              className="text-red-600 hover:text-red-800"
-            >
-              <Trash2 className="h-5 w-5" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {resumeData.workExperience.length === 0 && (
+        <div className="text-text-light text-sm mb-4">
+          No work experience added yet.
+        </div>
+      )}
+      {resumeData.workExperience.map((exp, index) => (
+        <div
+          key={exp.id}
+          className="mb-8 border-b border-background pb-6 last:border-b-0 last:pb-0"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Company</label>
+              <label
+                htmlFor={`company-${exp.id}`}
+                className="block text-sm font-medium text-text mb-1"
+              >
+                Company <span className="text-coral">*</span>
+              </label>
               <input
                 type="text"
-                value={experience.company}
-                onChange={(e) => handleChange(experience.id, 'company', e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                name="company"
+                id={`company-${exp.id}`}
+                value={exp.company}
+                onChange={(e) => handleChange(index, e)}
+                className="mt-1 block w-full rounded-lg border border-primary bg-background text-text shadow-sm focus:border-emerald focus:ring-2 focus:ring-emerald/50 transition-all duration-150 px-3 py-2 outline-none"
+                required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Position</label>
+              <label
+                htmlFor={`position-${exp.id}`}
+                className="block text-sm font-medium text-text mb-1"
+              >
+                Position <span className="text-coral">*</span>
+              </label>
               <input
                 type="text"
-                value={experience.position}
-                onChange={(e) => handleChange(experience.id, 'position', e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                name="position"
+                id={`position-${exp.id}`}
+                value={exp.position}
+                onChange={(e) => handleChange(index, e)}
+                className="mt-1 block w-full rounded-lg border border-primary bg-background text-text shadow-sm focus:border-emerald focus:ring-2 focus:ring-emerald/50 transition-all duration-150 px-3 py-2 outline-none"
+                required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Start Date</label>
+              <label
+                htmlFor={`startDate-${exp.id}`}
+                className="block text-sm font-medium text-text mb-1"
+              >
+                Start Date <span className="text-coral">*</span>
+              </label>
               <input
-                type="date"
-                value={experience.startDate}
-                onChange={(e) => handleChange(experience.id, 'startDate', e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                type="month"
+                name="startDate"
+                id={`startDate-${exp.id}`}
+                value={exp.startDate}
+                onChange={(e) => handleChange(index, e)}
+                className="mt-1 block w-full rounded-lg border border-primary bg-background text-text shadow-sm focus:border-emerald focus:ring-2 focus:ring-emerald/50 transition-all duration-150 px-3 py-2 outline-none"
+                required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">End Date</label>
+              <label
+                htmlFor={`endDate-${exp.id}`}
+                className="block text-sm font-medium text-text mb-1"
+              >
+                End Date <span className="text-coral">*</span>
+              </label>
               <input
-                type="date"
-                value={experience.endDate}
-                disabled={experience.current}
-                onChange={(e) => handleChange(experience.id, 'endDate', e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                type="month"
+                name="endDate"
+                id={`endDate-${exp.id}`}
+                value={exp.endDate}
+                onChange={(e) => handleChange(index, e)}
+                className="mt-1 block w-full rounded-lg border border-primary bg-background text-text shadow-sm focus:border-emerald focus:ring-2 focus:ring-emerald/50 transition-all duration-150 px-3 py-2 outline-none"
+                disabled={exp.current}
+                required={!exp.current}
               />
-              <div className="mt-2">
+              <div className="flex items-center mt-2">
                 <input
                   type="checkbox"
-                  id={`current-${experience.id}`}
-                  checked={experience.current}
-                  onChange={(e) => handleChange(experience.id, 'current', e.target.checked)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  name="current"
+                  id={`current-${exp.id}`}
+                  checked={exp.current}
+                  onChange={(e) => handleChange(index, e)}
+                  className="rounded border-primary text-emerald focus:ring-emerald/50"
                 />
-                <label htmlFor={`current-${experience.id}`} className="ml-2 text-sm text-gray-600">
-                  Current Position
+                <label
+                  htmlFor={`current-${exp.id}`}
+                  className="ml-2 text-sm text-text-light"
+                >
+                  Currently working here
                 </label>
               </div>
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Description</label>
+          <div className="mb-4">
+            <label
+              htmlFor={`description-${exp.id}`}
+              className="block text-sm font-medium text-text mb-1"
+            >
+              Description <span className="text-coral">*</span>
+            </label>
             <textarea
-              rows={4}
-              value={experience.description}
-              onChange={(e) => handleChange(experience.id, 'description', e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              name="description"
+              id={`description-${exp.id}`}
+              rows={3}
+              value={exp.description}
+              onChange={(e) => handleChange(index, e)}
+              className="mt-1 block w-full rounded-lg border border-primary bg-background text-text shadow-sm focus:border-emerald focus:ring-2 focus:ring-emerald/50 transition-all duration-150 px-3 py-2 outline-none resize-none"
+              required
             />
           </div>
+          <button
+            type="button"
+            onClick={() => removeExperience(index)}
+            className="px-3 py-1 rounded-lg bg-coral text-white font-medium shadow hover:bg-coral/90 focus:outline-none focus:ring-2 focus:ring-coral/50 transition-all text-sm"
+          >
+            Remove
+          </button>
         </div>
       ))}
     </div>
